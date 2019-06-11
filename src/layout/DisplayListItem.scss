@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.toolbar-panel {
+    flex: 1 1 80px;
+    justify-content: flex-end;
+    display: flex;
+    align-items: center;
+}
+
+.content-panel {
+    flex: 2 2 auto;
+    justify-content: stretch;
+    display: flex;
+    align-items: center;
+}
