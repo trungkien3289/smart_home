@@ -10,8 +10,10 @@ import 'styled-components/macro'
 import { PingNetworkScheduleList } from '../../components/ping-network-schedule/PingNetworkScheduleList';
 import { IPingNetworkSchedule } from '../../store/ping-network/reducers';
 import { getAllSchedule } from '../../store/ping-network/actions';
+import AddPingScheduleDialog from '../../components/ping-network-schedule/add-schedule-dialog/AddPingScheduleDialog';
 
 interface State {
+  isOpenScheduleDialog: boolean;
 }
 
 interface OwnProps {
@@ -31,23 +33,34 @@ class PingNetWorkSchedule extends React.Component<Props, State>{
     constructor(prop:Props) {
         super(prop)
         this.state = {
+          isOpenScheduleDialog:false
         }
       }
 
     componentDidMount(){
         this.props.getAllSchedules();
     }
+
+    openScheduleDialog = () => {
+        this.setState({
+            isOpenScheduleDialog: true
+        })
+    }
+
     public render(){
         return (
-          <LayoutDisplayListItem
-            toolbar = {
-              <Button variant="contained" color="primary">Add Schedule</Button>
-            }
-            listItems = {
-              <PingNetworkScheduleList schedules = {this.props.schedules}></PingNetworkScheduleList>
-            }
-          ></LayoutDisplayListItem>
-        );
+          <>
+            <LayoutDisplayListItem
+              toolbar = {
+                <Button variant="contained" color="primary" onClick={this.openScheduleDialog.bind(this)}>Add Schedule</Button>
+              }
+              listItems = {
+                <PingNetworkScheduleList schedules = {this.props.schedules}></PingNetworkScheduleList>
+              }
+            ></LayoutDisplayListItem>
+            <AddPingScheduleDialog open={this.state.isOpenScheduleDialog}/>
+        </>
+      );
     }
 }
 

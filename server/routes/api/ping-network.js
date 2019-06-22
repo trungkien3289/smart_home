@@ -26,7 +26,7 @@ module.exports = (router) => {
      * add new ping network schedule
      */
     router
-    .route('/pingnetwork/schedules/create')
+    .route('/pingnetwork/schedules/add')
     .post(pingNetworkController.addSchedule)
 
 }

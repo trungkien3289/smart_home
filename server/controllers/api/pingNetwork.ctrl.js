@@ -78,13 +78,14 @@ module.exports = {
         });
     },
     addSchedule: function (req, res, next) {
-        let { name, expression, active, createdDate } = req.body;
+        let { name, expression, active, createdDate, hosts } = req.body;
 
-        const newOne = new PingNetworkResultModel({
+        const newOne = new PingNetworkScheduleModel({
             name: name,
             expression: expression,
             active: active,
-            createdDate: createdDate
+            createdDate: createdDate,
+            hosts: hosts
         });
 
         newOne.save()

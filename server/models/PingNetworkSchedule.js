@@ -7,7 +7,8 @@ const PingNetworkScheduleSchema = new Schema({
   name: { type: String, required: true },
   expression: { type: String, required: true },
   active: { type: Boolean, required: true },
-  createdDate: {type: Date}
+  createdDate: {type: String},
+  hosts: {type: [String], required: true}
 });
 
 module.exports = mongoose.model('PingNetworkSchedule', PingNetworkScheduleSchema);
