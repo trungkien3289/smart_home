@@ -10,6 +10,7 @@ const path = require('path');
 const app = express();
 const aipRouter = express.Router();
 const webRouter = express.Router();
+let TaskManagement = require('./schedules/schedule-management');
 // connect database
 const url = process.env.MONGODB_URI || "mongodb://localhost:27017/SSA"
 /** configure cloudinary */
@@ -18,10 +19,13 @@ cloudinary.config({
     api_key: 'YOUR_CLOUDINARY_API_KEY_HERE',
     api_secret: 'YOUR_CLOUDINARY_API_SECRET_HERE'
 })
+let taskManagement = TaskManagement()
 /** connect to MongoDB datastore */
 try {
     mongoose.connect(url, {
-        // useMongoClient: true
+        useMongoClient: true
+    },() => {
+        taskManagement.start();
     })    
 } catch (error) {
     }
@@ -34,14 +38,10 @@ webRoutes(webRouter)
 app.use(cors())
 app.use(bodyParser.json())
 app.use(helmet())
-//app.get('/home', (req, res) => {
-//    res.sendFile('./index.html', {
-//        root: path.join(__dirname, './')
-//    })
-//})
 app.use('/static',express.static(path.join('./build/static')))
 app.use('/api', aipRouter)
 app.use('/', webRouter);
+
 /** start server */
 app.listen(port, () => {
     console.log(`Server started at port: ${port}`);

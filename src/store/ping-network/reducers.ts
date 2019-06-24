@@ -7,7 +7,7 @@ import { ScheduleStautsEnum } from './constants';
 export interface IPingNetworkSchedule {
     name: string,
     expression: string,
-    status: ScheduleStautsEnum,
+    active: boolean,
     createdDate: Date
 }
 

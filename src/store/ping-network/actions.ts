@@ -65,3 +65,20 @@ export const addSchedule: ActionCreator<
         }
     }
 }
+
+export const updateScheduleStatus: ActionCreator<
+    ThunkAction<Promise<any>, IPingNetworkState, null, IGetAllPingNetworkScheduleAction>
+> = (name: string, status: boolean) => {
+    return async (dispatch: Dispatch) => {
+        try {
+            await axios.post(`${API_BASE_URL}pingnetwork/schedules/setStatus`, {name, status});
+            const response = await axios.get(`${API_BASE_URL}pingnetwork/schedules`);
+            dispatch({
+                schedules: response.data.data,
+                type: PingNetworkActionTypes.GET_ALL_PING_NETWORK_SCHEDULE,
+            });
+        }catch(err){
+            console.error(err);
+        }
+    }
+}

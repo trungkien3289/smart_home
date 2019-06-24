@@ -9,7 +9,7 @@ import * as types from 'styled-components/cssprop'
 import 'styled-components/macro'
 import { PingNetworkScheduleList } from '../../components/ping-network-schedule/PingNetworkScheduleList';
 import { IPingNetworkSchedule } from '../../store/ping-network/reducers';
-import { getAllSchedule } from '../../store/ping-network/actions';
+import { getAllSchedule, updateScheduleStatus } from '../../store/ping-network/actions';
 import AddPingScheduleDialog from '../../components/ping-network-schedule/add-schedule-dialog/AddPingScheduleDialog';
 
 interface State {
@@ -20,7 +20,8 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  getAllSchedules: () => void
+  getAllSchedules: () => void;
+  updateScheduleStatus: (name: string, status: boolean) => any;
 }
 
 interface StateProps {
@@ -47,6 +48,10 @@ class PingNetWorkSchedule extends React.Component<Props, State>{
         })
     }
 
+    onScheduleStatusChange = (scheduleName: string, status: boolean) => {
+      this.props.updateScheduleStatus(scheduleName, status);
+    }
+
     public render(){
         return (
           <>
@@ -55,7 +60,7 @@ class PingNetWorkSchedule extends React.Component<Props, State>{
                 <Button variant="contained" color="primary" onClick={this.openScheduleDialog.bind(this)}>Add Schedule</Button>
               }
               listItems = {
-                <PingNetworkScheduleList schedules = {this.props.schedules}></PingNetworkScheduleList>
+                <PingNetworkScheduleList schedules = {this.props.schedules} onScheduleChangeStatus={this.onScheduleStatusChange}></PingNetworkScheduleList>
               }
             ></LayoutDisplayListItem>
             <AddPingScheduleDialog open={this.state.isOpenScheduleDialog}/>
@@ -73,6 +78,10 @@ class PingNetWorkSchedule extends React.Component<Props, State>{
       getAllSchedules: async () => {
         await dispatch(getAllSchedule())
         console.log('Get all schedule completed [UI]')
+      },
+      updateScheduleStatus: async (name: string, status: boolean) => {
+        await dispatch(updateScheduleStatus(name, status));
+        console.log('Finish update status')
       }
     }
   }
