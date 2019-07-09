@@ -7,11 +7,11 @@ import ScreenDashboard from './screens/dashboard/dashboard';
 import PingNetworkScreen from './screens/ping-network/ping';
 interface IProps {
     store: Store<IAppState>;
-  }
+}
 
-  interface IState{
+interface IState{
 
-  }
+}
 
 export class App extends React.Component<IProps, IState>{
     constructor(props: IProps){

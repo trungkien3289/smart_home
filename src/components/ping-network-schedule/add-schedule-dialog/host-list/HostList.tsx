@@ -32,7 +32,7 @@ export class HostList extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            hosts: [],
+            hosts: this.props.hosts || [],
             hostInputValue: "",
             isAddHostBtnDisabled: true
         }

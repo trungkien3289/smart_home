@@ -25,19 +25,31 @@ import {
   IPingNetworkState, 
   pingNetworkReducer 
   } from './ping-network/reducers';
+import {
+  IDeviceState, 
+  deviceReducer 
+  } from './device/reducers';
+import {
+  IScheduleState, 
+  scheduleReducer 
+  } from './schedule/reducers';
 
   // Create an interface for the application state
 export interface IAppState {
     characterState: ICharacterState;
     customerState: ICustomerState;
     pingNetworkState: IPingNetworkState;
+    deviceState: IDeviceState;
+    scheduleState: IScheduleState;
   }
 
   // Create the root reducer
 const rootReducer = combineReducers<IAppState>({
     characterState: characterReducer,
     customerState: customerReducer,
-    pingNetworkState: pingNetworkReducer
+    pingNetworkState: pingNetworkReducer,
+    deviceState: deviceReducer,
+    scheduleState: scheduleReducer,
   });
 
   // Create a configure store function of type `IAppState`

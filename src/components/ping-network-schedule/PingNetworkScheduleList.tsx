@@ -9,9 +9,12 @@ import Paper from '@material-ui/core/Paper';
 import 'styled-components/macro'
 import { IPingNetworkSchedule } from '../../store/ping-network/reducers';
 import AddPingScheduleDialog from './add-schedule-dialog/AddPingScheduleDialog';
-import { Switch, Grid, Typography } from '@material-ui/core';
+import { Switch, Grid, Typography, Button, IconButton} from '@material-ui/core';
 import { AntSwitch } from './AntSwitch';
 import styled from 'styled-components/macro';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import cronstrue from 'cronstrue';
 
 const StatusSwitchContainer = styled.div`
     display:flex;
@@ -27,6 +30,8 @@ interface State {
 interface OwnProps {
     schedules: IPingNetworkSchedule[];
     onScheduleChangeStatus: (scheduleName:string, status: boolean) => void;
+    onDeleteSchedule: (name: string) => void;
+    onEditSchedule: (name: string) => void;
 }
 
 interface DispatchProps {
@@ -35,6 +40,7 @@ interface DispatchProps {
 type Props = OwnProps & DispatchProps
 
 export class PingNetworkScheduleList extends React.Component<Props, State> {
+    
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -50,6 +56,11 @@ export class PingNetworkScheduleList extends React.Component<Props, State> {
     }
 
     public render() {
+        let listScheduleViewModels =  this.props.schedules.map((item) => {
+            let viewModel = {...item}
+            viewModel.expression = cronstrue.toString(viewModel.expression);
+            return viewModel;
+        })
         return (
             <Paper className='root' css="flex: 1 1 auto">
                 <Table className='table'>
@@ -59,10 +70,11 @@ export class PingNetworkScheduleList extends React.Component<Props, State> {
                             <TableCell align="right">Expression</TableCell>
                             <TableCell align="center">Status</TableCell>
                             <TableCell align="right">Created Date</TableCell>
+                            <TableCell align="right"></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.props.schedules.map(row => (
+                        {listScheduleViewModels.map(row => (
                             <TableRow key={row.name}>
                                 <TableCell component="th" scope="row">
                                     {row.name}
@@ -81,6 +93,14 @@ export class PingNetworkScheduleList extends React.Component<Props, State> {
                                     </StatusSwitchContainer>
                                 </TableCell>
                                 <TableCell align="right">{row.createdDate}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton aria-label="Delete"  onClick={() =>this.props.onDeleteSchedule(row.name)}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                    <IconButton aria-label="Edit"  onClick={() =>this.props.onEditSchedule(row.name)}>
+                                        <EditIcon />
+                                    </IconButton>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

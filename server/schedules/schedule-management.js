@@ -1,24 +1,54 @@
 const cron = require('node-cron');
-const PingNetworkScheduleModel = require('../models/PingNetworkSchedule')
+const ScheduleModel = require('../models/Schedule')
 const eventManagement = require('../events/event-management')
 const eventManagementTypeEnum = require('../events/event-management-type')
-const pingNetworkEventTypeEnum = require('../events/ping-network-events/event-types')
+const scheduleEventTypeEnum = require('../events/schedule-events/event-types')
 const pingNetworkService = require('../services/ping-network-service')
+const SystemCompiler = require('../resource-management/resource-management')
 module.exports = () => {
     let schedules = [];
     let task = {};
-    const pingNetworkEventManagement = eventManagement[eventManagementTypeEnum.PING_NETWORK_MANAGEMENT];
+    const scheduleEventManagement = eventManagement[eventManagementTypeEnum.SCHEDULE_MANAGEMENT];
+    let actions = [
+        {
+            Id: 1,
+            Name: "Turn_On_Light",
+            Device: {
+                Name: "Living Room",
+                Type: "Light"
+            },
+            Parameters:[]
+        },
+        {
+            Id: 2,
+            Name: "Turn_Off_Light",
+            Device: {
+                Name: "Living Room",
+                Type: "Light"
+            },
+            Parameters:[]
+        },
+    ]
 
     let startTask = (savedSchedules) => {
+        schedules = savedSchedules;
         savedSchedules.forEach(element => {
-            task[element.name] = cron.schedule(element.expression, () => {
-                console.log(`Task ${element.name} run`);
-                pingNetworkService.ping(element.hosts);
-            }, {
-                scheduled: false,
-            });
+            task[element.name] = cron.schedule(
+                element.expression,
+                () => {
+                    // console.log(`Task ${element.name} run`);
+                    // pingNetworkService.ping(element.hosts);
+                    element.actions.forEach(action => {
+                        SystemCompiler.compile(action, SystemCompiler);
+                        // console.log(SystemCompiler);
+                    });
+                },
+                {
+                    scheduled: false,
+                }
+            );
 
-            if(element.active){
+            if(element.isActive){
                 task[element.name].start();
                 console.log("Task "+ element.name + " started.");
             }
@@ -32,14 +62,14 @@ module.exports = () => {
         }, {
             scheduled: false,
         });
-        if(newSchedule.active){
+        if(newSchedule.isActive){
             task[newSchedule.name].start();
         }
     }
 
-    let updateTaskStatus = (name, active) => {
+    let updateTaskStatus = (name, isActive) => {
         if(task[name] !== undefined){
-            active? task[name].start() : task[name].stop();
+            isActive? task[name].start() : task[name].stop();
         }else{
             throw new Error("Cannot found task with name " + name);
         }
@@ -57,29 +87,63 @@ module.exports = () => {
         }
     }
 
+    let updateTask = (updatedSchedule) => {
+        try{
+            let found = getScheduleByName(updatedSchedule.name);
+            Object.assign(
+                found,
+                updatedSchedule
+            );
+
+            task[updatedSchedule.name].stop();
+            if(updatedSchedule.isActive){
+                task[updatedSchedule.name].start();
+            }
+        }catch(err){
+            console.log(err);
+        }
+    }
+
+    let getScheduleByName = (name) => {
+        let results = schedules.filter((item) => {
+            return item.name == name;
+        })
+
+        if(results.length>0){
+            return results[0];
+        }else{
+            throw new Error(`Cannot found schedule with name ${name}`);
+        }
+    }
+
     let setEventHandler = () => {
-        pingNetworkEventManagement.addListener(pingNetworkEventTypeEnum.ADD_SCHEDULE, (newSchedule) => {
+        scheduleEventManagement.addListener(scheduleEventTypeEnum.ADD_SCHEDULE, (newSchedule) => {
             addSchedule(newSchedule);
             console.log("ADD_SCHEDULE event handler run");
         });
-        pingNetworkEventManagement.addListener(pingNetworkEventTypeEnum.DELETE_SCHEDULE, (name) => {
+        scheduleEventManagement.addListener(scheduleEventTypeEnum.DELETE_SCHEDULE, (name) => {
             deleteTask(name);
             console.log("DELETE_SCHEDULE event handler run");
         });
-        pingNetworkEventManagement.addListener(pingNetworkEventTypeEnum.ACTIVE_SCHEDULE, (name) => {
+        scheduleEventManagement.addListener(scheduleEventTypeEnum.ACTIVE_SCHEDULE, (name) => {
             updateTaskStatus(name, true);
             console.log("ACTIVE_SCHEDULE event handler run");
         });
-        pingNetworkEventManagement.addListener(pingNetworkEventTypeEnum.DEACTIVE_SCHEDULE, (name) => {
+        scheduleEventManagement.addListener(scheduleEventTypeEnum.DEACTIVE_SCHEDULE, (name) => {
             updateTaskStatus(name, false);
             console.log("DEACTIVE_SCHEDULE event handler run");
+        });
+        scheduleEventManagement.addListener(scheduleEventTypeEnum.EDIT_SCHEDULE, (updatedSchedule) => {
+            updateTask(updatedSchedule);
+            console.log("EDIT_SCHEDULE event handler run");
         });
     }
 
     return {
         task:task,
         start : () => {
-            PingNetworkScheduleModel.find({})
+            ScheduleModel.find({})
+            .populate('actions')
             .exec()
             .then(schedules => {
                 this.schedules = schedules;

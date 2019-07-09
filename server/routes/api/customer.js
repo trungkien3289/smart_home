@@ -36,7 +36,4 @@ module.exports = (router) => {
     router
     .route('/customergroups/create')
     .post(customergroupController.createCustomerGroup)
-
-
-
 }

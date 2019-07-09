@@ -106,19 +106,17 @@ module.exports = {
     },
     deleteSchedule: function (req, res, next) {
         let { name } = req.body;
-        PingNetworkScheduleModel.findByIdAndRemove({
-            name: name
-        }, (err, schedule) => {
-            if (err) return res.status(500).send(err);
 
-            const response = {
-                message: "Schedule successfully deleted",
-                success: false,
-                data: err
-            };
-            pingNetworkEventManagement.fireEvent(pingNetworkEventType.DELETE_SCHEDULE, schedule.name)
-            return res.status(200).send(response);
+        PingNetworkScheduleModel.remove({name: name}).exec()
+        .then(newResult => {
+            res.send({ success: true, data: newResult });
+            pingNetworkEventManagement.fireEvent(pingNetworkEventType.DELETE_SCHEDULE, newResult)
+            next()
         })
+        .catch(error => {
+            res.send({ success: false, data: error });
+            next()
+        });
     },
     setScheduleStatus: function (req, res, next) {
         let { name, status } = req.body;
@@ -152,7 +150,40 @@ module.exports = {
                 res.send({ success: false, data: error, message: "Update Schedule status fail." });
                 next()
             });
-    }
+    },
+    editSchedule: function (req, res, next) {
+        let { name, expression, active, hosts, description } = req.body;
+    
+        PingNetworkScheduleModel.find({ name: name })
+        .exec()
+        .then(results => {
+            if (results.length > 0) {
+                let found = results[0];
+                Object.assign(found, {
+                    expression: expression,
+                    active: active,
+                    hosts: hosts,
+                    description: description,
+                })
+                return found.save();
+            } else {
+                res.send({ success: false, data: null, message: "Cannot found schedule with name " + name });
+                next()
+            }
+        })
+        .catch(error => {
+            res.send({ success: false, data: error });
+            next()
+        }).then(updatedItem => {
+            pingNetworkEventManagement.fireEvent(pingNetworkEventType.EDIT_SCHEDULE, updatedItem)
+            res.send({ success: true, data: updatedItem });
+            next()
+        })
+        .catch(error => {
+            res.send({ success: false, data: error, message: "Update Schedule status fail." });
+            next()
+        });
+    },
 }
 
 //#region private function

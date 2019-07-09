@@ -8,17 +8,23 @@ export interface IPingNetworkSchedule {
     name: string,
     expression: string,
     active: boolean,
-    createdDate: Date
+    createdDate: string,
+    hosts: string[],
+    description: string,
 }
 
 // Define Customer State
 export interface IPingNetworkState {
     schedules: IPingNetworkSchedule[];
+    isScheduleDialogOpen: boolean;
+    isEditScheduleDialogOpen: boolean;
 }
 
 // Define the initial state
 const initialScheduleState: IPingNetworkState = {
     schedules : [],
+    isScheduleDialogOpen: false,
+    isEditScheduleDialogOpen: false,
 };
 
 export const pingNetworkReducer: Reducer<IPingNetworkState, PingNetworkActions> = (
@@ -30,6 +36,24 @@ export const pingNetworkReducer: Reducer<IPingNetworkState, PingNetworkActions> 
             return {
                 ...state,
                 schedules: action.schedules
+            }
+        }
+        case PingNetworkActionTypes.TOGGLE_ADD_SCHEDULE_DIALOG: {
+            return {
+                ...state,
+                isScheduleDialogOpen:!state.isScheduleDialogOpen
+            }
+        }
+        // case PingNetworkActionTypes.DELETE_SCHEDULE: {
+        //     return {
+        //         ...state,
+        //         isScheduleDialogOpen:!state.isScheduleDialogOpen
+        //     }
+        // }
+        case PingNetworkActionTypes.TOGGLE_EDIT_SCHEDULE_DIALOG: {
+            return {
+                ...state,
+                isEditScheduleDialogOpen:!state.isEditScheduleDialogOpen
             }
         }
         default:

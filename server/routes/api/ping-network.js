@@ -1,5 +1,4 @@
 const pingNetworkController = require('../../controllers/api/pingNetwork.ctrl');
-const multipath = require('connect-multiparty')
 module.exports = (router) => {
 
     /**
@@ -44,5 +43,12 @@ module.exports = (router) => {
     router
     .route('/pingnetwork/schedules/setStatus')
     .post(pingNetworkController.setScheduleStatus)
+
+      /**
+     * add new ping network schedule
+     */
+    router
+    .route('/pingnetwork/schedules/edit')
+    .post(pingNetworkController.editSchedule)
 
 }

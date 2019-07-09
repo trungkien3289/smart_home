@@ -8,9 +8,11 @@ import Notifications from "@material-ui/icons/Notifications";
 import Unarchive from "@material-ui/icons/Unarchive";
 import Language from "@material-ui/icons/Language";
 // core components/views for Admin layout
-import { Dashboard } from "./containers/dashboard/dashboard";
+import { Dashboard } from "./containers/dashboard/Dashboard";
 import  Customer  from "./containers/customer/customer";
-import  PingNetWorkSchedule  from "./containers/ping-network-schedule/ping";
+import  PingNetWorkSchedule  from "./containers/ping-network-schedule/Ping";
+import  DeviceManagement  from "./containers/device-management/DeviceManagement";
+import  ScheduleManagement  from "./containers/schedule-management/ScheduleManagement";
 // import UserProfile from "views/UserProfile/UserProfile.jsx";
 // import TableList from "views/TableList/TableList.jsx";
 // import Typography from "views/Typography/Typography.jsx";
@@ -43,7 +45,23 @@ const dashboardRoutes = [
     icon: Person,
     component: PingNetWorkSchedule,
     layout: "/dashboard"
-  }
+  },
+  {
+    path: "/device",
+    name: "Device",
+    rtlName: "Device",
+    icon: Person,
+    component: DeviceManagement,
+    layout: "/dashboard"
+  },
+  {
+    path: "/schedule",
+    name: "Schedule",
+    rtlName: "Schedule",
+    icon: Person,
+    component: ScheduleManagement,
+    layout: "/dashboard"
+  },
 ];
 
 export default dashboardRoutes;

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, Typography, DialogActions, Button, AppBar, Tabs, Tab, IconButton, Icon } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, AppBar, Tabs, Tab, IconButton, Icon } from '@material-ui/core';
 import styled from 'styled-components';
 import { HostList } from './host-list/HostList';
 import ScheduleSetup from './schedule-setup/index'
 import { IAppState } from '../../../store/rootReducer';
 import { ThunkDispatch } from 'redux-thunk';
-import { addSchedule } from '../../../store/ping-network/actions';
+import { addSchedule, toggleAddScheduleDialog } from '../../../store/ping-network/actions';
 import { connect } from 'react-redux';
 import ScheduleInformation from './information/ScheduleInformation';
 import CloseIcon from '@material-ui/icons/Close';
@@ -40,18 +40,20 @@ interface State {
     createdDate: string;
     name: string;
     description: string;
+    active: boolean;
 }
 
 interface OwnProps {
-    open: boolean;
+    // dialogState: boolean;
 }
 
 interface DispatchProps {
     addSchedule: (newSchedule: any) => void;
+    toggleDialog: () => void;
 }
 
 interface IStateProps {
-
+     isOpen: boolean;
 }
 
 type Props = OwnProps & DispatchProps & IStateProps
@@ -67,27 +69,19 @@ class AddPingScheduleDialog extends React.Component<Props, State> {
             expression: "* * * * * *",
             createdDate: new Date().toString(),
             name: "",
-            description: ""
-        }
-    }
-    componentWillReceiveProps(nextProps: Props) {
-        if (nextProps.open !== this.state.open) {
-            this.setState({
-                open: nextProps.open
-            })
+            description: "",
+            active: false
         }
     }
 
     handleClose = () => {
-        this.setState({
-            open: false
-        })
+       this.props.toggleDialog();
     }
 
     handleSaveBtnClick = () => {
         this.props.addSchedule({
             name: this.state.name,
-            active: true,
+            active: this.state.active,
             expression: this.state.expression,
             hosts: this.state.hosts,
             createdDate: new Date().toString(),
@@ -114,10 +108,11 @@ class AddPingScheduleDialog extends React.Component<Props, State> {
         });
     }
 
-    onInforDataChanged = (name: string, description: string) => {
+    onInforDataChanged = (name: string, description: string, active: boolean) => {
         this.setState({
             name: name,
-            description: description
+            description: description,
+            active: active
         });
     }
 
@@ -126,7 +121,7 @@ class AddPingScheduleDialog extends React.Component<Props, State> {
             <Dialog
                 onClose={this.handleClose}
                 aria-labelledby="customized-dialog-title"
-                open={this.state.open}
+                open={this.props.isOpen}
                 maxWidth='lg'
                 disableBackdropClick={true}
             >
@@ -146,7 +141,13 @@ class AddPingScheduleDialog extends React.Component<Props, State> {
                             </Tabs>
                         </AppBar>
                         <TabContainer hidden={this.state.tabIndex != 0}>
-                            <ScheduleInformation className="information-scheduledialog" onChanged={this.onInforDataChanged.bind(this)} name={this.state.name} description={this.state.description} />
+                            <ScheduleInformation 
+                            className="information-scheduledialog" 
+                            onChanged={this.onInforDataChanged.bind(this)} 
+                            name={this.state.name} 
+                            description={this.state.description} 
+                            active={this.state.active}
+                            isEditMode={false}/>
                         </TabContainer>
                         <TabContainer hidden={this.state.tabIndex != 1}>
                             <HostList className="hostlist-scheduledialog" onChanged={this.onHostListChanged.bind(this)} hosts={this.state.hosts} />
@@ -169,13 +170,20 @@ class AddPingScheduleDialog extends React.Component<Props, State> {
     }
 }
 
+const mapStateToProps = (states: IAppState, ownProps: OwnProps): IStateProps => ({
+    isOpen : states.pingNetworkState.isScheduleDialogOpen
+  })
+
 const mapDispatchToProps = (dispatch: ThunkDispatch<{}, {}, any>, ownProps: OwnProps): DispatchProps => {
     return {
-        addSchedule: async (newSchedule) => {
+        addSchedule: async (newSchedule: any) => {
             await dispatch(addSchedule(newSchedule))
             console.log('Get all customers completed [UI]')
+        },
+        toggleDialog: () => {
+            dispatch(toggleAddScheduleDialog())
         }
     }
 }
 
-export default connect<IStateProps, DispatchProps, OwnProps, IAppState>(null, mapDispatchToProps)(AddPingScheduleDialog);
+export default connect<IStateProps, DispatchProps, OwnProps, IAppState>(mapStateToProps, mapDispatchToProps)(AddPingScheduleDialog);

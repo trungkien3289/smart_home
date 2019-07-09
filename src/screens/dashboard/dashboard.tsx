@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -100,28 +101,6 @@ class ScreenDashboard extends React.Component<WithStyles<typeof styles>> {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        {/* <AppBar
-          position="fixed"
-          className={classNames(classes.appBar, {
-            [classes.appBarShift]: this.state.open,
-          })}
-        >
-          <Toolbar disableGutters={!this.state.open}>
-            <IconButton
-              color="inherit"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerOpen}
-              className={classNames(classes.menuButton, {
-                [classes.hide]: this.state.open,
-              })}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" color="inherit" noWrap>
-              Mini variant drawer
-            </Typography>
-          </Toolbar>
-        </AppBar> */}
         <Drawer
           variant="permanent"
           className={classNames(classes.drawer, {
@@ -136,11 +115,16 @@ class ScreenDashboard extends React.Component<WithStyles<typeof styles>> {
           }}
           open={this.state.open}
         >
-          <div className={classes.toolbar}>
+          {this.state.open &&<div className={classes.toolbar}>
             <IconButton onClick={this.handleDrawerClose}>
               <ChevronLeftIcon />
             </IconButton>
-          </div>
+          </div>}
+          {!this.state.open && <div className={classes.toolbar}>
+            <IconButton onClick={this.handleDrawerOpen}>
+              <ChevronRightIcon />
+            </IconButton>
+          </div>}
           <Divider />
           <List>
             {dashoardRoutes.map((item, index) => (
@@ -177,10 +161,5 @@ class ScreenDashboard extends React.Component<WithStyles<typeof styles>> {
     );
   }
 }
-
-// Dashboard.propTypes = {
-//   classes: PropTypes.object.isRequired,
-//   theme: PropTypes.object.isRequired,
-// };
 
 export default withStyles(styles)(ScreenDashboard);
